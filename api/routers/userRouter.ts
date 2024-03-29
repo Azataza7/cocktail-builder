@@ -10,6 +10,12 @@ import config from "../config";
 const userRouter = Router();
 const client = new OAuth2Client(config.google.clientId);
 
+userRouter.get('/', async (req, res, next) => {
+  const results = await User.find();
+
+  return res.send(results);
+})
+
 userRouter.post("/", imagesUpload.single("avatar"), 
 async (req: Request, res: Response, next: NextFunction) => {
   try {
