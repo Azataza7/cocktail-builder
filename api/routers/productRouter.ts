@@ -10,7 +10,7 @@ const productRouter = Router();
 
 productRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const results = await Product.find({isPublished: true});
+    const results = await Product.find({ isPublished: true });
 
     return res.send(results);
   } catch (e) {
@@ -36,7 +36,7 @@ productRouter.get('/user-products',
 auth, 
 async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
-    const results = await Product.find({user: req.user?._id});
+    const results = await Product.find({ user: req.user?._id });
 
     return res.send(results);
   } catch (e) {
@@ -53,7 +53,7 @@ async (req: RequestWithUser, res: Response, next: NextFunction) => {
   const user = req.user;
 
   if (!cocktailImage || !user) {
-    return res.status(400).send({error: 'product fields missing'});
+    return res.status(400).send({ error: 'product fields missing' });
   }
 
   try {
@@ -86,16 +86,35 @@ async (req: Request, res: Response, next: NextFunction) => {
     const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).send({error: 'Product not found'});
+      return res.status(404).send({ error: 'Product not found' });
     }
 
     product.isPublished = !product.isPublished;
     await product.save();
 
-    return res.send({message: 'Product published!', product});
+    return res.send({ message: 'Product published!', product });
   } catch (e) {
     next(e)
   }
-})
+});
+
+productRouter.delete('/:id', 
+auth, 
+permit('admin'),
+async (req: Request, res: Response, next:NextFunction) => {
+  try {
+    const productId = req.params.id;
+
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+
+    if (!deletedProduct) {
+      return res.status(404).send({ error: "Product not found or already deleted." });
+    }
+
+    return res.send({ message: "success", deletedProduct });
+  } catch (e) {
+    next(e);
+  }
+});
 
 export default productRouter;
