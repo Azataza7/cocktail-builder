@@ -80,6 +80,7 @@ userRouter.post("/google", async (req: Request, res: Response, next: NextFunctio
         displayName,
         avatar,
       });
+      
     }
 
     user.generateToken();

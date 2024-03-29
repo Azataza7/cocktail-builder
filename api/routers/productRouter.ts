@@ -52,12 +52,7 @@ productRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
 
       const result = await Product.findById(productId);
 
-      if (result?.isPublished === false) {
-        return res.status(405).send({ error: "product not available" });
-      }
-
       const reviews = await Review.find({ productID: productId })
-      .populate("userID", "_id email displayName avatar role");
 
       let totalRating = 0;
       reviews.forEach((review) => {
