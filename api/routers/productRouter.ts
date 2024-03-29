@@ -10,15 +10,30 @@ const productRouter = Router();
 
 productRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const results = await Product.find();
+    const results = await Product.find({isPublished: true});
 
     return res.send(results);
-  } catch {
-    return null;
+  } catch (e) {
+    next(e);
   }
 });
 
-productRouter.get('/user-products', auth, 
+productRouter.get('/all-products',
+  auth,
+  permit("admin"),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const results = await Product.find();
+
+      return res.send(results);
+    } catch {
+      return null;
+    }
+  }
+);
+
+productRouter.get('/user-products', 
+auth, 
 async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const results = await Product.find({user: req.user?._id});
@@ -30,7 +45,8 @@ async (req: RequestWithUser, res: Response, next: NextFunction) => {
   }
 });
 
-productRouter.post('/', imagesUpload.single('image'), auth,
+productRouter.post('/', imagesUpload.single('image'), 
+auth,
 async (req: RequestWithUser, res: Response, next: NextFunction) => {
   const {title, recipe, ingredients} = req.body;
   const cocktailImage = req.file;
@@ -62,7 +78,9 @@ async (req: RequestWithUser, res: Response, next: NextFunction) => {
   }
 });
 
-productRouter.patch('/:id/togglePublished', auth, permit('admin'), 
+productRouter.patch('/:id/togglePublished', 
+auth, 
+permit('admin'), 
 async (req: Request, res: Response, next: NextFunction) => {
   try {
     const product = await Product.findById(req.params.id);
