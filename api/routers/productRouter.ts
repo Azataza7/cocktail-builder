@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { imagesUpload } from "../multer";
 import auth, { RequestWithUser } from "../middleware/auth";
+import permit from "../middleware/permit";
 import Product from "../models/Product";
 import { newCocktailData } from "../types";
 import mongoose from "mongoose";
@@ -60,5 +61,23 @@ async (req: RequestWithUser, res: Response, next: NextFunction) => {
     next(e);
   }
 });
+
+productRouter.patch('/:id/togglePublished', auth, permit('admin'), 
+async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).send({error: 'Product not found'});
+    }
+
+    product.isPublished = !product.isPublished;
+    await product.save();
+
+    return res.send({message: 'Product published!', product});
+  } catch (e) {
+    next(e)
+  }
+})
 
 export default productRouter;
