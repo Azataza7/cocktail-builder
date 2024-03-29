@@ -40,3 +40,19 @@ export interface RegisterResponse {
 export interface GlobalError {
   error: string;
 }
+
+export interface CocktailIngredients {
+  _id: string;
+  name: string;
+  amount: string;
+}
+
+export interface Cocktail {
+  _id: string;
+  user: string;
+  title: string;
+  image: string;
+  recipe: string;
+  isPublished: boolean;
+  ingredients: CocktailIngredients[]
+}
