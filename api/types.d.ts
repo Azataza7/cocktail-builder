@@ -40,3 +40,14 @@ export interface newCocktailData {
   recipe: string;
   ingredients: Ingredient[];
 }
+
+export interface UserReview {
+  userID: string;
+  productID: string;
+  rate: number;
+}
+
+export interface ReviewInfo {
+  averageRating: number;
+  reviewsCount: number;
+}

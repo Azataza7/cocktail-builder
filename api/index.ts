@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import config from "./config";
 import userRouter from "./routers/userRouter";
 import productRouter from "./routers/productRouter";
+import reviewRouter from "./routers/reviewRouter";
 
 const app = express();
 const port = 8000;
@@ -14,6 +15,7 @@ app.use(cors());
 
 app.use('/users', userRouter);
 app.use('/product', productRouter);
+app.use('/review', reviewRouter);
 
 const run = async () => {
   await mongoose.connect(config.mongoose.db);

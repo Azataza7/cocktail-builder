@@ -3,8 +3,9 @@ import { imagesUpload } from "../multer";
 import auth, { RequestWithUser } from "../middleware/auth";
 import permit from "../middleware/permit";
 import Product from "../models/Product";
-import { newCocktailData } from "../types";
+import { ReviewInfo, newCocktailData } from "../types";
 import mongoose from "mongoose";
+import Review from "../models/Review";
 
 const productRouter = Router(); 
 
@@ -44,6 +45,39 @@ async (req: RequestWithUser, res: Response, next: NextFunction) => {
     next(e);
   }
 });
+
+productRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const productId = req.params.id;
+
+      const result = await Product.findById(productId);
+
+      if (result?.isPublished === false) {
+        return res.status(405).send({ error: "product not available" });
+      }
+
+      const reviews = await Review.find({ productID: productId })
+      .populate("userID", "_id email displayName avatar role");
+
+      let totalRating = 0;
+      reviews.forEach((review) => {
+        totalRating += review.rate;
+      });
+
+      const averageRating =
+        reviews.length > 0 ? totalRating / reviews.length : 0;
+
+      const reviewInfo: ReviewInfo = {
+        averageRating: averageRating,
+        reviewsCount: reviews.length 
+      }
+
+      return res.send({cocktail: result, reviews: reviewInfo});
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 
 productRouter.post('/', imagesUpload.single('image'), 
 auth,
